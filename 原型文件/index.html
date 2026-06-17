@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APP 侧边栏原型</title>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --canvas: #eef1f6;
+      --drawer: #f8fafc;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --faint: #9ca3af;
+      --line: #e6eaf0;
+      --brand: #2563eb;
+      --brand-deep: #1e40af;
+      --green: #13a36f;
+      --orange: #f08a24;
+      --purple: #7c3aed;
+      --pink: #db2777;
+      --cyan: #0891b2;
+      --shadow: 0 20px 48px rgba(25, 39, 63, 0.16);
+      --soft-shadow: 0 10px 24px rgba(30, 45, 72, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      overflow-x: hidden;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 32%),
+        linear-gradient(180deg, #f7f9fd 0%, var(--canvas) 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-shell {
+      width: min(100vw, 390px);
+      height: 844px;
+      overflow: hidden;
+      border-radius: 28px;
+      background: #d1d5db;
+      box-shadow: 0 24px 64px rgba(25, 39, 63, 0.18);
+    }
+
+    .sidebar-overlay {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 66.666% 33.334%;
+      background: transparent;
+    }
+
+    .phone-stage {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+    }
+
+    .scrim {
+      height: 100%;
+      background: rgba(15, 23, 42, 0.28);
+      box-shadow: inset 18px 0 34px rgba(15, 23, 42, 0.12);
+    }
+
+    .drawer {
+      height: 100%;
+      padding: 14px 10px 16px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      border: none;
+      border-radius: 0;
+      background: var(--drawer);
+      box-shadow: 12px 0 28px rgba(25, 39, 63, 0.14);
+    }
+
+    .drawer-view {
+      min-height: 100%;
+    }
+
+    .drawer-view[hidden] {
+      display: none;
+    }
+
+    .secondary-view {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 8px;
+    }
+
+    .secondary-section {
+      margin-top: 0;
+    }
+
+    .secondary-actions {
+      margin-top: auto;
+      padding-top: 18px;
+    }
+
+    .back-button {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid #c6ccd6;
+      border-radius: 12px;
+      background: #ffffff;
+      color: #1f2937;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: transform 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .wallet-card {
+      position: relative;
+      margin-bottom: 12px;
+      padding: 10px;
+      overflow: hidden;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at 90% 0%, rgba(255, 255, 255, 0.38), transparent 30%),
+        linear-gradient(135deg, #2374ff 0%, #1746c7 100%);
+      color: #ffffff;
+      box-shadow: 0 16px 32px rgba(30, 80, 190, 0.24);
+      transition: transform 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .wallet-card::after {
+      content: "";
+      position: absolute;
+      right: -34px;
+      bottom: -42px;
+      width: 128px;
+      height: 128px;
+      border: 18px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+    }
+
+    .wallet-head {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .balance-link {
+      display: block;
+      min-width: 0;
+      border-radius: 14px;
+    }
+
+    .wallet-label {
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .wallet-amount {
+      display: block;
+      margin-top: 6px;
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .asset-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 12px;
+      gap: 5px;
+    }
+
+    .asset {
+      min-width: 0;
+      display: block;
+      padding: 7px 5px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.13);
+      backdrop-filter: blur(8px);
+      transition: transform 0.16s ease, background-color 0.16s ease;
+    }
+
+    .asset-name {
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 700;
+    }
+
+    .asset-value {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      color: #ffffff;
+      font-size: 10px;
+      line-height: 1;
+      font-weight: 850;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .section {
+      margin-top: 10px;
+      padding: 11px 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--soft-shadow);
+    }
+
+    .section-title {
+      margin: 0 0 9px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px 5px;
+    }
+
+    .feature-link {
+      min-width: 0;
+      min-height: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 5px;
+      border-radius: 15px;
+      transition: transform 0.16s ease, background-color 0.16s ease;
+    }
+
+    .back-button:active,
+    .balance-link:active,
+    .asset:active,
+    .feature-link:active {
+      transform: scale(0.97);
+    }
+
+    .back-button:focus-visible,
+    .balance-link:focus-visible,
+    .asset:focus-visible,
+    .feature-link:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.28);
+      outline-offset: 3px;
+    }
+
+    .balance-link:hover,
+    .asset:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .feature-link:hover {
+      background: #f4f7fb;
+    }
+
+    .back-button:hover {
+      border-color: #aeb7c5;
+      background: #f8fafc;
+    }
+
+    .feature-icon {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      color: var(--icon-color);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.44)),
+        var(--icon-bg);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 8px 16px var(--icon-shadow);
+    }
+
+    .feature-icon svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 2.35;
+    }
+
+    .feature-name {
+      width: 100%;
+      min-height: 24px;
+      color: #243044;
+      font-size: 10.5px;
+      line-height: 1.22;
+      font-weight: 760;
+      text-align: center;
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+
+    .tone-blue {
+      --icon-color: #1d4ed8;
+      --icon-bg: #dbeafe;
+      --icon-shadow: rgba(37, 99, 235, 0.14);
+    }
+
+    .tone-orange {
+      --icon-color: #c75a09;
+      --icon-bg: #ffedd5;
+      --icon-shadow: rgba(249, 115, 22, 0.14);
+    }
+
+    .tone-green {
+      --icon-color: #047857;
+      --icon-bg: #d1fae5;
+      --icon-shadow: rgba(16, 185, 129, 0.14);
+    }
+
+    .tone-purple {
+      --icon-color: #6d28d9;
+      --icon-bg: #ede9fe;
+      --icon-shadow: rgba(124, 58, 237, 0.14);
+    }
+
+    .tone-pink {
+      --icon-color: #be185d;
+      --icon-bg: #fce7f3;
+      --icon-shadow: rgba(219, 39, 119, 0.14);
+    }
+
+    .tone-cyan {
+      --icon-color: #0e7490;
+      --icon-bg: #cffafe;
+      --icon-shadow: rgba(6, 182, 212, 0.14);
+    }
+
+    .tone-slate {
+      --icon-color: #475569;
+      --icon-bg: #e2e8f0;
+      --icon-shadow: rgba(71, 85, 105, 0.12);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      z-index: 20;
+      min-width: 184px;
+      padding: 11px 16px;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.92);
+      color: #ffffff;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 14px 28px rgba(17, 24, 39, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 380px) {
+      body {
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 0;
+      }
+
+      .sidebar-overlay {
+        grid-template-columns: 66.666% 33.334%;
+      }
+
+      .drawer {
+        padding: 10px 8px 14px;
+      }
+
+      .back-button {
+        min-height: 46px;
+      }
+
+      .wallet-amount {
+        font-size: 26px;
+      }
+
+      .section {
+        padding: 10px 8px;
+      }
+
+      .feature-grid {
+        gap: 8px 4px;
+      }
+
+      .feature-icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
+      }
+
+      .feature-name {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <div class="sidebar-overlay" aria-label="侧边栏弹出状态">
+      <main class="phone-stage" aria-label="APP 侧边栏原型">
+        <aside class="drawer">
+      <div class="drawer-view primary-view" data-view="primary">
+      <section class="wallet-card" aria-label="钱包资产">
+        <div class="wallet-head">
+          <a class="balance-link" href="#balance" data-title="余额" aria-label="进入余额页面">
+            <span class="wallet-label">我的余额</span>
+            <strong class="wallet-amount">￥25.70</strong>
+          </a>
+        </div>
+        <div class="asset-grid" aria-label="钱包资产概览">
+          <a class="asset" href="#coin" data-title="通币" aria-label="进入通币页面"><span class="asset-name">通币</span><span class="asset-value">9999.00万</span></a>
+          <a class="asset" href="#diamond" data-title="通钻" aria-label="进入通钻页面"><span class="asset-name">通钻</span><span class="asset-value">9999.00万</span></a>
+          <a class="asset" href="#power" data-title="算力" aria-label="进入算力页面"><span class="asset-name">算力</span><span class="asset-value">9999.00万</span></a>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="common-title">
+        <h2 class="section-title" id="common-title">常用功能</h2>
+        <nav class="feature-grid" aria-label="常用功能">
+          <a class="feature-link" href="#welfare-center" data-title="福利中心"><span class="feature-icon tone-pink"><i data-lucide="gift"></i></span><span class="feature-name">福利中心</span></a>
+          <a class="feature-link" href="#premium-member" data-title="臻享会员"><span class="feature-icon tone-blue"><i data-lucide="crown"></i></span><span class="feature-name">臻享会员</span></a>
+          <a class="feature-link" href="#red-packet" data-title="红包"><span class="feature-icon tone-orange"><i data-lucide="badge-dollar-sign"></i></span><span class="feature-name">红包</span></a>
+          <a class="feature-link" href="#mall" data-title="商城"><span class="feature-icon tone-orange"><i data-lucide="shopping-bag"></i></span><span class="feature-name">商城</span></a>
+          <a class="feature-link" href="#mini-app" data-title="小APP"><span class="feature-icon tone-green"><i data-lucide="blocks"></i></span><span class="feature-name">小APP</span></a>
+          <a class="feature-link" href="#slot-machine" data-title="小虎机"><span class="feature-icon tone-purple"><i data-lucide="gamepad-2"></i></span><span class="feature-name">小虎机</span></a>
+          <a class="feature-link" href="#token-club" data-title="通证俱乐部"><span class="feature-icon tone-cyan"><i data-lucide="gem"></i></span><span class="feature-name">通证俱乐部</span></a>
+          <a class="feature-link" href="#movie-ticket" data-title="电影票"><span class="feature-icon tone-orange"><i data-lucide="ticket"></i></span><span class="feature-name">电影票</span></a>
+        </nav>
+      </section>
+
+      <section class="section" aria-labelledby="watch-title">
+        <h2 class="section-title" id="watch-title">看</h2>
+        <nav class="feature-grid" aria-label="看">
+          <a class="feature-link" href="#history" data-title="浏览记录"><span class="feature-icon tone-slate"><i data-lucide="history"></i></span><span class="feature-name">浏览记录</span></a>
+          <a class="feature-link" href="#downloads" data-title="我的下载"><span class="feature-icon tone-cyan"><i data-lucide="download"></i></span><span class="feature-name">我的下载</span></a>
+          <a class="feature-link" href="#anchor-center" data-title="主播中心"><span class="feature-icon tone-purple"><i data-lucide="radio"></i></span><span class="feature-name">主播中心</span></a>
+        </nav>
+      </section>
+
+      <section class="section" aria-labelledby="more-title">
+        <h2 class="section-title" id="more-title">更多服务</h2>
+        <nav class="feature-grid" aria-label="更多服务">
+          <a class="feature-link" href="#support" data-title="客服"><span class="feature-icon tone-green"><i data-lucide="headphones"></i></span><span class="feature-name">客服</span></a>
+          <a class="feature-link" href="#announcement" data-title="官方公告"><span class="feature-icon tone-slate"><i data-lucide="megaphone"></i></span><span class="feature-name">官方公告</span></a>
+          <a class="feature-link" href="#more-features" data-title="更多功能" data-open-secondary><span class="feature-icon tone-blue"><i data-lucide="ellipsis"></i></span><span class="feature-name">更多功能</span></a>
+        </nav>
+      </section>
+      </div>
+
+      <div class="drawer-view secondary-view" data-view="secondary" hidden>
+      <section class="section secondary-section" aria-labelledby="secondary-more-title">
+        <h2 class="section-title" id="secondary-more-title">更多服务</h2>
+        <nav class="feature-grid" aria-label="更多服务二级入口">
+          <a class="feature-link" href="#gift-activation" data-title="礼包激活"><span class="feature-icon tone-pink"><i data-lucide="gift"></i></span><span class="feature-name">礼包激活</span></a>
+          <a class="feature-link" href="#tongtong-partner" data-title="通通伙伴"><span class="feature-icon tone-blue"><i data-lucide="handshake"></i></span><span class="feature-name">通通伙伴</span></a>
+          <a class="feature-link" href="#tongtong-pay" data-title="通通买单"><span class="feature-icon tone-orange"><i data-lucide="receipt-text"></i></span><span class="feature-name">通通买单</span></a>
+          <a class="feature-link" href="#meiyun-insurance" data-title="美云保"><span class="feature-icon tone-green"><i data-lucide="shield-check"></i></span><span class="feature-name">美云保</span></a>
+          <a class="feature-link" href="#explorer" data-title="探索器"><span class="feature-icon tone-purple"><i data-lucide="search"></i></span><span class="feature-name">探索器</span></a>
+        </nav>
+      </section>
+      <div class="secondary-actions">
+        <button class="back-button" type="button" data-close-secondary>返回</button>
+      </div>
+      </div>
+        </aside>
+      </main>
+      <div class="scrim" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    lucide.createIcons();
+
+    const toast = document.querySelector(".toast");
+    let toastTimer = null;
+
+    const primaryView = document.querySelector('[data-view="primary"]');
+    const secondaryView = document.querySelector('[data-view="secondary"]');
+    const openSecondary = document.querySelector("[data-open-secondary]");
+    const closeSecondary = document.querySelector("[data-close-secondary]");
+
+    openSecondary?.addEventListener("click", (event) => {
+      event.preventDefault();
+      primaryView.hidden = true;
+      secondaryView.hidden = false;
+    });
+
+    closeSecondary?.addEventListener("click", () => {
+      secondaryView.hidden = true;
+      primaryView.hidden = false;
+    });
+
+    document.querySelectorAll("[data-title]").forEach((item) => {
+      item.addEventListener("click", () => {
+        if (item.hasAttribute("data-open-secondary")) {
+          return;
+        }
+        const title = item.getAttribute("data-title");
+        toast.textContent = `跳转至${title}`;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 1200);
+      });
+    });
+  </script>
+</body>
+</html>
