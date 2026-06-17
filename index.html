@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>侧边栏改版原型</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 48px 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+        .nav-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .nav-item {
+            display: block;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
+            border-radius: 12px;
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        .nav-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.25);
+            border-color: #667eea;
+            background: linear-gradient(135deg, #fff 0%, #f5f7ff 100%);
+        }
+        .nav-item-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .nav-item-desc {
+            font-size: 13px;
+            color: #666;
+        }
+        .footer {
+            margin-top: 32px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>侧边栏改版原型</h1>
+        <p class="subtitle">请选择要查看的页面</p>
+        <div class="nav-list">
+            <a class="nav-item" href="./%E5%8E%9F%E5%9E%8B%E6%96%87%E4%BB%B6/index.html">
+                <div class="nav-item-title">📋 原型首页</div>
+                <div class="nav-item-desc">侧边栏改版主页面</div>
+            </a>
+            <a class="nav-item" href="./%E5%8E%9F%E5%9E%8B%E6%96%87%E4%BB%B6/wallet-unopened.html">
+                <div class="nav-item-title">💰 钱包未开通页</div>
+                <div class="nav-item-desc">钱包未开通状态展示</div>
+            </a>
+        </div>
+        <div class="footer">© 2026 侧边栏改版项目</div>
+    </div>
+</body>
+</html>
